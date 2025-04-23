@@ -32,7 +32,17 @@ const userSchema = z.object({
     ),
 });
 
-const UserForm = ({ userValues, setUserValues }) => {
+const UserForm = ({
+  userValues,
+  setUserValues,
+}: {
+  userValues: {
+    id: string;
+    username: string;
+    email: string;
+    phoneNumber: string;
+  } | null;
+}) => {
   const form = useForm<z.infer<typeof userSchema>>({
     resolver: zodResolver(userSchema),
   });
