@@ -34,7 +34,7 @@ const UsersList = ({ setUserValues }) => {
 
   const handleDeleteUser = async (id) => {
     const deleteRef = doc(collectionRef, id);
-    const deleteUser = await deleteDoc(deleteRef);
+    await deleteDoc(deleteRef);
   };
   const handleSetUserValues = (user) => {
     setUserValues(user);
