@@ -64,18 +64,21 @@ const UserForm = ({
       try {
         await updateDoc(updateRef, { ...e });
         setUserValues(null);
-        form.reset();
       } catch (error) {
         console.log(error);
       }
     } else {
       try {
         await addDoc(dbRef, { ...e });
-        form.reset();
       } catch (error) {
         console.log(error);
       }
     }
+    form.reset({
+      username: "",
+      email: "",
+      phoneNumber: "",
+    });
   };
 
   return (
