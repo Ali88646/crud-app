@@ -4,21 +4,14 @@ import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { db } from "@/app/fireabse/firebase";
 import { collection, deleteDoc, doc, onSnapshot } from "firebase/firestore";
+import { SetUser, User } from "../../types";
+import toast from "react-hot-toast";
 
-const UsersList = ({ setUserValues }) => {
-  const [users, setUsers] = useState<
-    | {
-        id: string;
-        username?: string;
-        email?: string;
-        phoneNumber?: string;
-      }[]
-    | null
-  >(null);
+const UsersList = ({ setUserValues }: { setUserValues: SetUser }) => {
+  const [users, setUsers] = useState<User[] | null | []>(null);
 
   const collectionRef = collection(db, "users");
   useEffect(() => {
-    // 👇 Real-time listener
     const unsubscribe = onSnapshot(collectionRef, (snapshot) => {
       const docs = snapshot.docs.map((doc) => ({
         id: doc.id,
@@ -32,11 +25,16 @@ const UsersList = ({ setUserValues }) => {
     return () => unsubscribe();
   }, []);
 
-  const handleDeleteUser = async (id) => {
+  const handleDeleteUser = async (id: string) => {
     const deleteRef = doc(collectionRef, id);
-    await deleteDoc(deleteRef);
+    try {
+      await deleteDoc(deleteRef);
+      toast.success("Deleted Successfully");
+    } catch (error) {
+      toast.error("An Error Occured");
+    }
   };
-  const handleSetUserValues = (user) => {
+  const handleSetUserValues = (user: User) => {
     setUserValues(user);
   };
 

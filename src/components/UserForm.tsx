@@ -15,6 +15,8 @@ import { Button } from "./ui/button";
 import { collection, addDoc, updateDoc, doc } from "firebase/firestore";
 import { db } from "@/app/fireabse/firebase";
 import { useEffect } from "react";
+import { SetUser, User } from "../../types";
+import toast from "react-hot-toast";
 
 const userSchema = z.object({
   username: z
@@ -36,17 +38,20 @@ const UserForm = ({
   userValues,
   setUserValues,
 }: {
-  userValues: {
-    id: string;
-    username: string;
-    email: string;
-    phoneNumber: string;
-  } | null;
+  userValues: User | null;
+  setUserValues: SetUser;
 }) => {
   const form = useForm<z.infer<typeof userSchema>>({
     resolver: zodResolver(userSchema),
   });
 
+  const formResetValues = {
+    username: "",
+    email: "",
+    phoneNumber: "",
+  };
+
+  // if user values change form values will change accordingly
   useEffect(() => {
     if (userValues) {
       form.reset({
@@ -58,27 +63,28 @@ const UserForm = ({
   }, [userValues, form.reset]);
 
   const dbRef = collection(db, "users");
+
+  // handeling both update and add logic in one function
   const onSubmit = async (e: z.infer<typeof userSchema>) => {
     if (userValues) {
-      const updateRef = doc(dbRef, userValues.id);
       try {
-        await updateDoc(updateRef, { ...e });
+        const updateRef = doc(dbRef, userValues.id);
         setUserValues(null);
+        await updateDoc(updateRef, { ...e });
+        toast.success("Updated Successfully");
       } catch (error) {
         console.log(error);
       }
     } else {
       try {
+        const dbRef = collection(db, "users");
         await addDoc(dbRef, { ...e });
+        toast.success("User has been added");
       } catch (error) {
         console.log(error);
       }
     }
-    form.reset({
-      username: "",
-      email: "",
-      phoneNumber: "",
-    });
+    form.reset(formResetValues);
   };
 
   return (
@@ -152,11 +158,7 @@ const UserForm = ({
               <Button
                 onClick={() => {
                   setUserValues(null);
-                  form.reset({
-                    username: "",
-                    email: "",
-                    phoneNumber: "",
-                  });
+                  form.reset(formResetValues);
                 }}
                 variant={"destructive"}
                 className="cursor-pointer"
